@@ -243,9 +243,16 @@ export function nextWaitlistEntry(store, eventId, tierId) {
   validateStore(store);
 
   const event = getEvent(store, eventId);
-  getTier(event, tierId);
+  const tier = getTier(event, tierId);
+  const waitlist = getWaitlist(store, tierId);
 
-  const entry = getWaitlist(store, tierId).dequeue();
+  const nextEntry = waitlist.peek();
 
-  return entry ? { ...entry } : null;
+  if (!nextEntry || tier.available < nextEntry.quantity) {
+    return null;
+  }
+
+  const entry = waitlist.dequeue();
+
+  return { ...entry };
 }
